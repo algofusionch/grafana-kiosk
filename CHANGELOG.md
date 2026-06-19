@@ -7,6 +7,13 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Documentation
+
+- Expand the README HTTP Basic Auth section with environment-variable and `config.yaml` examples, including the
+  nested `basicauth:` config keys and precedence notes
+
 ## [1.0.12-ba] - 2026-06-19
 
 ### Features
