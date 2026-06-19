@@ -425,20 +425,73 @@ This will take the browser to a playlist on play.grafana.org in fullscreen kiosk
 
 ### Grafana behind a reverse proxy with HTTP Basic Auth
 
-When Grafana is hidden behind a reverse proxy that enforces HTTP Basic Auth,
-supply the proxy credentials with `-basic-auth-username` and
-`-basic-auth-password`. These are sent in the `Authorization` header on every
-request and are independent of the Grafana login method, so they combine with
-`anon`, `local`, `gcom`, `goauth`, `aws`, and `azuread`:
+When Grafana is hidden behind a reverse proxy (nginx, Traefik, Apache, an
+ingress controller, etc.) that enforces HTTP Basic Auth, supply the proxy
+credentials with the basic-auth options. The credentials are base64-encoded
+into an `Authorization: Basic` header that is attached to **every** request
+for the whole browser session.
+
+This is a transport-level credential for the proxy and is **independent of the
+Grafana login method**, so it layers on top of `anon`, `local`, `gcom`,
+`goauth`, `aws`, and `azuread`. Both the username and password must be set.
+
+> **Note:** Basic auth cannot be combined with the `apikey` or `idtoken` login
+> methods — those already use the `Authorization` header for their bearer
+> token, so the kiosk exits with an error if you try.
+
+There are three ways to provide the credentials. Pick whichever fits your
+deployment; precedence is CLI flags > environment variables > config file.
+
+#### 1. CLI flags
 
 ```bash
 ./bin/grafana-kiosk \
-  -URL=https://grafana.internal.example.com -login-method=anon \
-  -basic-auth-username=monitor -basic-auth-password=changeme -kiosk-mode=tv
+  -URL=https://grafana.internal.example.com -login-method=anon -kiosk-mode=tv \
+  -basic-auth-username=monitor -basic-auth-password=changeme
 ```
 
-Basic auth cannot be combined with the `apikey` or `idtoken` login methods,
-because those also use the `Authorization` header for their bearer token.
+#### 2. Environment variables
+
+```bash
+export KIOSK_BASICAUTH_USERNAME=monitor
+export KIOSK_BASICAUTH_PASSWORD=changeme
+./bin/grafana-kiosk -URL=https://grafana.internal.example.com -login-method=anon -kiosk-mode=tv
+```
+
+#### 3. Configuration file
+
+Add a `basicauth` block to your `config.yaml`. Note the keys are
+`basicauth-username` and `basicauth-password`, nested under `basicauth`. This
+example pairs proxy basic auth with a `local` Grafana login:
+
+```yaml
+---
+general:
+  kiosk-mode: tv
+  autofit: true
+
+target:
+  login-method: local
+  username: pi-viewer
+  password: grafana-account-password
+  URL: https://grafana.internal.example.com/d/bpwfrpj
+  ignore-certificate-errors: false
+
+# Credentials for the reverse proxy in front of Grafana (sent as HTTP Basic
+# Auth on every request). Independent of target.username / target.password
+# above, which are the Grafana account login.
+basicauth:
+  basicauth-username: monitor
+  basicauth-password: changeme
+```
+
+```bash
+./bin/grafana-kiosk -c config.yaml
+```
+
+Keep the password out of the file where possible: set `basicauth-username` in
+the file and override the password at runtime with `KIOSK_BASICAUTH_PASSWORD`
+or `-basic-auth-password`, since environment and flags take precedence.
 
 ### Grafana Server with Api Key
 
