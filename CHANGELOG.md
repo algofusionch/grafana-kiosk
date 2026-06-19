@@ -11,6 +11,11 @@ and this project adheres to
 
 ### Features
 
+- Add `-basic-auth-username` / `-basic-auth-password` flags (env `KIOSK_BASICAUTH_USERNAME` /
+  `KIOSK_BASICAUTH_PASSWORD`) to send HTTP Basic Auth credentials on every request, for reaching a Grafana instance
+  behind a reverse proxy that enforces HTTP Basic Auth. Applied centrally for all login methods except `apikey` and
+  `idtoken`, which already use the `Authorization` header for a bearer token and are rejected as a conflicting
+  combination
 - Add `-headless` flag (env `KIOSK_HEADLESS`, default `false`) to run the browser without a display; required for
   integration testing and useful for CI pipelines
 - Add `-disable-chromium-kiosk-optimizations` flag (env `KIOSK_DISABLE_CHROMIUM_KIOSK_OPTIMIZATIONS`, default `false`)

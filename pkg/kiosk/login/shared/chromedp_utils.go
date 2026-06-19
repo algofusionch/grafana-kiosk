@@ -2,6 +2,7 @@ package shared
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"net/url"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/chromedp/cdproto/browser"
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 
 	"github.com/grafana/grafana-kiosk/pkg/kiosk/config"
@@ -76,6 +78,33 @@ func GenerateURL(cfg *config.Config) string {
 	}
 
 	return parsedURI.String()
+}
+
+// GenerateHTTPBasicAuthHeader returns the value for an HTTP Authorization header
+// using the Basic scheme: "Basic " + base64("username:password").
+func GenerateHTTPBasicAuthHeader(username, password string) string {
+	auth := username + ":" + password
+	return "Basic " + base64.StdEncoding.EncodeToString([]byte(auth))
+}
+
+// SetupBasicAuth installs an HTTP Basic Auth Authorization header for the
+// browser session when both username and password are configured. It is meant
+// for reaching a Grafana instance behind a reverse proxy that enforces HTTP
+// Basic Auth, independent of the Grafana login method. The header is set once
+// and persists for the whole browser session. No-op when basic auth is not
+// configured.
+func SetupBasicAuth(ctx context.Context, cfg *config.Config) error {
+	if cfg.BasicAuth.Username == "" || cfg.BasicAuth.Password == "" {
+		return nil
+	}
+	log.Println("Enabling HTTP Basic Auth header for all requests")
+	headers := network.Headers(map[string]any{
+		"Authorization": GenerateHTTPBasicAuthHeader(cfg.BasicAuth.Username, cfg.BasicAuth.Password),
+	})
+	return chromedp.Run(ctx,
+		network.Enable(),
+		network.SetExtraHTTPHeaders(headers),
+	)
 }
 
 // GenerateExecutorOptions builds the chromedp ExecAllocator options from cfg.

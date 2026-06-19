@@ -1,7 +1,9 @@
 package shared
 
 import (
+	"encoding/base64"
 	"fmt"
+	"strings"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -85,6 +87,25 @@ func TestGenerateURLAdditionalCases(t *testing.T) {
 			cfg := &config.Config{General: config.General{Mode: "disabled", AutoFit: true}, Target: config.Target{URL: base}}
 			result := GenerateURL(cfg)
 			So(result, ShouldContainSubstring, "autofitpanels")
+		})
+	})
+}
+
+func TestGenerateHTTPBasicAuthHeader(t *testing.T) {
+	Convey("Given GenerateHTTPBasicAuthHeader", t, func() {
+		decode := func(header string) string {
+			So(header, ShouldStartWith, "Basic ")
+			raw, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(header, "Basic "))
+			So(err, ShouldBeNil)
+			return string(raw)
+		}
+
+		Convey("Encodes username:password as base64 with the Basic scheme", func() {
+			So(decode(GenerateHTTPBasicAuthHeader("user", "pass")), ShouldEqual, "user:pass")
+		})
+
+		Convey("Empty credentials still produce a valid Basic header", func() {
+			So(decode(GenerateHTTPBasicAuthHeader("", "")), ShouldEqual, ":")
 		})
 	})
 }

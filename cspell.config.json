@@ -35,6 +35,7 @@
     "awsui",
     "azuread",
     "backgrounding",
+    "basicauth",
     "bkgann",
     "breakpad",
     "browsertest",
