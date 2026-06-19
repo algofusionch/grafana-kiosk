@@ -7,28 +7,28 @@ type BuildInfo struct {
 
 // General non-site specific configurations
 type General struct {
-	AutoFit         bool   `yaml:"autofit" env:"KIOSK_AUTOFIT" env-default:"true" env-description:"fit panels to screen"`
-	HideVariables   bool   `yaml:"hide-variables" env:"KIOSK_HIDE_VARIABLES" env-default:"false" env-description:"Hide variables in the top nav bar"`
-	HideLinks       bool   `yaml:"hide-links" env:"KIOSK_HIDE_LINKS" env-default:"false" env-description:"Hide links in the top nav bar"`
-	HideLogo        bool   `yaml:"hide-logo" env:"KIOSK_HIDE_LOGO" env-default:"false" env-description:"Hide Powered by Grafana logo"`
-	HidePlaylistNav bool   `yaml:"hide-playlist-nav" env:"KIOSK_HIDE_PLAYLIST_NAV" env-default:"false" env-description:"Hide playlist navigation controls"`
-	HideTimePicker  bool   `yaml:"hide-time-picker" env:"KIOSK_HIDE_TIME_PICKER" env-default:"false" env-description:"Hide time picker in the top nav bar"`
-	Incognito       bool   `yaml:"incognito" env:"KIOSK_INCOGNITO" env-default:"true" env-description:"use incognito mode"`
-	DebugEnabled    bool   `yaml:"debug" env:"KIOSK_DEBUG" env-default:"false" env-description:"enables debug output"`
-	GPUEnabled      bool   `yaml:"gpu-enabled" env:"KIOSK_GPU_ENABLED" env-default:"false" env-description:"disable GPU support"`
-	LXDEEnabled     bool   `yaml:"lxde" env:"KIOSK_LXDE_ENABLED" env-default:"false" env-description:"initialize LXDE for kiosk mode"`
-	LXDEHome        string `yaml:"lxde-home" env:"KIOSK_LXDE_HOME" env-default:"/home/pi" env-description:"path to home directory of LXDE user running X Server"`
-	Mode            string `yaml:"kiosk-mode" env:"KIOSK_MODE" env-default:"full" env-description:"[full|tv|disabled]"`
-	OzonePlatform   string `yaml:"ozone-platform" env:"KIOSK_OZONE_PLATFORM" env-default:"" env-description:"Set ozone-platform option (wayland|cast|drm|wayland|x11)"`
-	PageLoadDelayMS  int64 `yaml:"page-load-delay-ms" env:"KIOSK_PAGE_LOAD_DELAY_MS" env-default:"2000" env-description:"milliseconds to wait before expecting page load"`
-	RestartDelayMS   int64 `yaml:"restart-delay-ms" env:"KIOSK_RESTART_DELAY_MS" env-default:"5000" env-description:"milliseconds to wait before restarting after a session error"`
-	ScaleFactor     string `yaml:"scale-factor" env:"KIOSK_SCALE_FACTOR" env-default:"1.0" env-description:"Scale factor, like zoom"`
-	WindowPosition  string `yaml:"window-position" env:"KIOSK_WINDOW_POSITION" env-default:"0,0" env-description:"Top Left Position of Kiosk"`
-	WindowSize      string `yaml:"window-size" env:"KIOSK_WINDOW_SIZE" env-default:"" env-description:"Size of Kiosk in pixels (width,height)"`
-	Browser         string `yaml:"browser" env:"KIOSK_BROWSER" env-default:"chrome" env-description:"Browser to launch [chrome|edge]"`
-	BrowserPath     string `yaml:"browser-path" env:"KIOSK_BROWSER_PATH" env-default:"" env-description:"Explicit path to a Chromium-based browser executable; overrides -browser"`
-	Headless                        bool `yaml:"headless" env:"KIOSK_HEADLESS" env-default:"false" env-description:"Run browser in headless mode (no display required)"`
-	DisableChromiumKioskOptimizations bool `yaml:"disable-chromium-kiosk-optimizations" env:"KIOSK_DISABLE_CHROMIUM_KIOSK_OPTIMIZATIONS" env-default:"false" env-description:"Disable kiosk-specific Chromium flags (auto-refresh reliability, dialog suppression, popup handling); use if flags cause compatibility issues"`
+	AutoFit                           bool   `yaml:"autofit" env:"KIOSK_AUTOFIT" env-default:"true" env-description:"fit panels to screen"`
+	HideVariables                     bool   `yaml:"hide-variables" env:"KIOSK_HIDE_VARIABLES" env-default:"false" env-description:"Hide variables in the top nav bar"`
+	HideLinks                         bool   `yaml:"hide-links" env:"KIOSK_HIDE_LINKS" env-default:"false" env-description:"Hide links in the top nav bar"`
+	HideLogo                          bool   `yaml:"hide-logo" env:"KIOSK_HIDE_LOGO" env-default:"false" env-description:"Hide Powered by Grafana logo"`
+	HidePlaylistNav                   bool   `yaml:"hide-playlist-nav" env:"KIOSK_HIDE_PLAYLIST_NAV" env-default:"false" env-description:"Hide playlist navigation controls"`
+	HideTimePicker                    bool   `yaml:"hide-time-picker" env:"KIOSK_HIDE_TIME_PICKER" env-default:"false" env-description:"Hide time picker in the top nav bar"`
+	Incognito                         bool   `yaml:"incognito" env:"KIOSK_INCOGNITO" env-default:"true" env-description:"use incognito mode"`
+	DebugEnabled                      bool   `yaml:"debug" env:"KIOSK_DEBUG" env-default:"false" env-description:"enables debug output"`
+	GPUEnabled                        bool   `yaml:"gpu-enabled" env:"KIOSK_GPU_ENABLED" env-default:"false" env-description:"disable GPU support"`
+	LXDEEnabled                       bool   `yaml:"lxde" env:"KIOSK_LXDE_ENABLED" env-default:"false" env-description:"initialize LXDE for kiosk mode"`
+	LXDEHome                          string `yaml:"lxde-home" env:"KIOSK_LXDE_HOME" env-default:"/home/pi" env-description:"path to home directory of LXDE user running X Server"`
+	Mode                              string `yaml:"kiosk-mode" env:"KIOSK_MODE" env-default:"full" env-description:"[full|tv|disabled]"`
+	OzonePlatform                     string `yaml:"ozone-platform" env:"KIOSK_OZONE_PLATFORM" env-default:"" env-description:"Set ozone-platform option (wayland|cast|drm|wayland|x11)"`
+	PageLoadDelayMS                   int64  `yaml:"page-load-delay-ms" env:"KIOSK_PAGE_LOAD_DELAY_MS" env-default:"2000" env-description:"milliseconds to wait before expecting page load"`
+	RestartDelayMS                    int64  `yaml:"restart-delay-ms" env:"KIOSK_RESTART_DELAY_MS" env-default:"5000" env-description:"milliseconds to wait before restarting after a session error"`
+	ScaleFactor                       string `yaml:"scale-factor" env:"KIOSK_SCALE_FACTOR" env-default:"1.0" env-description:"Scale factor, like zoom"`
+	WindowPosition                    string `yaml:"window-position" env:"KIOSK_WINDOW_POSITION" env-default:"0,0" env-description:"Top Left Position of Kiosk"`
+	WindowSize                        string `yaml:"window-size" env:"KIOSK_WINDOW_SIZE" env-default:"" env-description:"Size of Kiosk in pixels (width,height)"`
+	Browser                           string `yaml:"browser" env:"KIOSK_BROWSER" env-default:"chrome" env-description:"Browser to launch [chrome|edge]"`
+	BrowserPath                       string `yaml:"browser-path" env:"KIOSK_BROWSER_PATH" env-default:"" env-description:"Explicit path to a Chromium-based browser executable; overrides -browser"`
+	Headless                          bool   `yaml:"headless" env:"KIOSK_HEADLESS" env-default:"false" env-description:"Run browser in headless mode (no display required)"`
+	DisableChromiumKioskOptimizations bool   `yaml:"disable-chromium-kiosk-optimizations" env:"KIOSK_DISABLE_CHROMIUM_KIOSK_OPTIMIZATIONS" env-default:"false" env-description:"Disable kiosk-specific Chromium flags (auto-refresh reliability, dialog suppression, popup handling); use if flags cause compatibility issues"`
 }
 
 // Target the dashboard/playlist details
@@ -63,12 +63,21 @@ type APIKey struct {
 	APIKey string `yaml:"apikey" env:"KIOSK_APIKEY_APIKEY" env-description:"APIKEY"`
 }
 
+// HTTPBasicAuth credentials for a reverse proxy placed in front of Grafana.
+// This is a transport-level credential sent to the proxy, independent of the
+// Grafana login method.
+type HTTPBasicAuth struct {
+	Username string `yaml:"basicauth-username" env:"KIOSK_BASICAUTH_USERNAME" env-description:"HTTP basic auth username (reverse proxy in front of Grafana)"`
+	Password string `yaml:"basicauth-password" env:"KIOSK_BASICAUTH_PASSWORD" env-description:"HTTP basic auth password (reverse proxy in front of Grafana)"`
+}
+
 // Config configuration for backend.
 type Config struct {
-	BuildInfo BuildInfo `yaml:"buildinfo"`
-	General   General   `yaml:"general"`
-	Target    Target    `yaml:"target"`
-	GoAuth    GoAuth    `yaml:"goauth"`
-	IDToken   IDToken   `yaml:"idtoken"`
-	APIKey    APIKey    `yaml:"apikey"`
+	BuildInfo BuildInfo     `yaml:"buildinfo"`
+	General   General       `yaml:"general"`
+	Target    Target        `yaml:"target"`
+	GoAuth    GoAuth        `yaml:"goauth"`
+	IDToken   IDToken       `yaml:"idtoken"`
+	APIKey    APIKey        `yaml:"apikey"`
+	BasicAuth HTTPBasicAuth `yaml:"basicauth"`
 }

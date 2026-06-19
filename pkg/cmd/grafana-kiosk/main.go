@@ -54,6 +54,8 @@ type Args struct {
 	Audience                             string
 	KeyFile                              string
 	APIKey                               string
+	BasicAuthUsername                    string
+	BasicAuthPassword                    string
 	LXDEHome                             string
 	ConfigPath                           string
 	Mode                                 string
@@ -121,6 +123,8 @@ func ProcessArgs(cfg any) (Args, *flag.FlagSet) {
 	flagSettings.StringVar(&processedArgs.Audience, "audience", "", "idtoken audience")
 	flagSettings.StringVar(&processedArgs.KeyFile, "keyfile", "key.json", "idtoken json credentials")
 	flagSettings.StringVar(&processedArgs.APIKey, "apikey", "", "apikey")
+	flagSettings.StringVar(&processedArgs.BasicAuthUsername, "basic-auth-username", "", "HTTP basic auth username (for a reverse proxy in front of Grafana)")
+	flagSettings.StringVar(&processedArgs.BasicAuthPassword, "basic-auth-password", "", "HTTP basic auth password (for a reverse proxy in front of Grafana)")
 
 	fu := flagSettings.Usage
 	flagSettings.Usage = func() {
@@ -167,25 +171,25 @@ func loadConfig(args Args, fs *flag.FlagSet, cfg *config.Config) error {
 		"playlists":                 func() { cfg.Target.IsPlayList = args.IsPlayList },
 		"use-mfa":                   func() { cfg.Target.UseMFA = args.UseMFA },
 		//
-		"autofit":            func() { cfg.General.AutoFit = args.AutoFit },
-		"lxde":               func() { cfg.General.LXDEEnabled = args.LXDEEnabled },
-		"lxde-home":          func() { cfg.General.LXDEHome = args.LXDEHome },
-		"kiosk-mode":         func() { cfg.General.Mode = args.Mode },
-		"window-position":    func() { cfg.General.WindowPosition = args.WindowPosition },
-		"window-size":        func() { cfg.General.WindowSize = args.WindowSize },
-		"scale-factor":       func() { cfg.General.ScaleFactor = args.ScaleFactor },
-		"browser":            func() { cfg.General.Browser = args.Browser },
-		"browser-path":       func() { cfg.General.BrowserPath = args.BrowserPath },
-		"headless":                            func() { cfg.General.Headless = args.Headless },
+		"autofit":                              func() { cfg.General.AutoFit = args.AutoFit },
+		"lxde":                                 func() { cfg.General.LXDEEnabled = args.LXDEEnabled },
+		"lxde-home":                            func() { cfg.General.LXDEHome = args.LXDEHome },
+		"kiosk-mode":                           func() { cfg.General.Mode = args.Mode },
+		"window-position":                      func() { cfg.General.WindowPosition = args.WindowPosition },
+		"window-size":                          func() { cfg.General.WindowSize = args.WindowSize },
+		"scale-factor":                         func() { cfg.General.ScaleFactor = args.ScaleFactor },
+		"browser":                              func() { cfg.General.Browser = args.Browser },
+		"browser-path":                         func() { cfg.General.BrowserPath = args.BrowserPath },
+		"headless":                             func() { cfg.General.Headless = args.Headless },
 		"disable-chromium-kiosk-optimizations": func() { cfg.General.DisableChromiumKioskOptimizations = args.DisableChromiumKioskOptimizations },
-		"page-load-delay-ms":  func() { cfg.General.PageLoadDelayMS = args.PageLoadDelayMS },
-		"restart-delay-ms":    func() { cfg.General.RestartDelayMS = args.RestartDelayMS },
-		"hide-links":         func() { cfg.General.HideLinks = args.HideLinks },
-		"hide-logo":          func() { cfg.General.HideLogo = args.HideLogo },
-		"hide-playlist-nav":  func() { cfg.General.HidePlaylistNav = args.HidePlaylistNav },
-		"hide-time-picker":   func() { cfg.General.HideTimePicker = args.HideTimePicker },
-		"hide-variables":     func() { cfg.General.HideVariables = args.HideVariables },
-		"incognito":          func() { cfg.General.Incognito = args.Incognito },
+		"page-load-delay-ms":                   func() { cfg.General.PageLoadDelayMS = args.PageLoadDelayMS },
+		"restart-delay-ms":                     func() { cfg.General.RestartDelayMS = args.RestartDelayMS },
+		"hide-links":                           func() { cfg.General.HideLinks = args.HideLinks },
+		"hide-logo":                            func() { cfg.General.HideLogo = args.HideLogo },
+		"hide-playlist-nav":                    func() { cfg.General.HidePlaylistNav = args.HidePlaylistNav },
+		"hide-time-picker":                     func() { cfg.General.HideTimePicker = args.HideTimePicker },
+		"hide-variables":                       func() { cfg.General.HideVariables = args.HideVariables },
+		"incognito":                            func() { cfg.General.Incognito = args.Incognito },
 		//
 		"auto-login":                     func() { cfg.GoAuth.AutoLogin = args.OauthAutoLogin },
 		"field-username":                 func() { cfg.GoAuth.UsernameField = args.UsernameField },
@@ -198,6 +202,9 @@ func loadConfig(args Args, fs *flag.FlagSet, cfg *config.Config) error {
 		"keyfile":  func() { cfg.IDToken.KeyFile = args.KeyFile },
 
 		"apikey": func() { cfg.APIKey.APIKey = args.APIKey },
+
+		"basic-auth-username": func() { cfg.BasicAuth.Username = args.BasicAuthUsername },
+		"basic-auth-password": func() { cfg.BasicAuth.Password = args.BasicAuthPassword },
 	}
 
 	fs.Visit(func(f *flag.Flag) {
@@ -277,6 +284,7 @@ func logTargetSettings(cfg *config.Config) {
 	log.Println("IgnoreCertificateErrors:", cfg.Target.IgnoreCertificateErrors)
 	log.Println("IsPlayList:", cfg.Target.IsPlayList)
 	log.Println("UseMFA:", cfg.Target.UseMFA)
+	log.Println("BasicAuth:", cfg.BasicAuth.Username != "" && cfg.BasicAuth.Password != "")
 }
 
 func logGoAuthSettings(cfg *config.Config) {
@@ -306,6 +314,23 @@ func main() {
 	if err := loadConfig(args, fs, &cfg); err != nil {
 		log.Printf("Failed to load configuration: %v — check your config file and environment variables", err)
 		os.Exit(-1)
+	}
+
+	// validate HTTP basic auth. It is a reverse-proxy credential sent in the
+	// Authorization header; require both parts, and reject combinations with
+	// login methods that already use the Authorization header for a bearer token.
+	hasBasicUser := cfg.BasicAuth.Username != ""
+	hasBasicPass := cfg.BasicAuth.Password != ""
+	if hasBasicUser != hasBasicPass {
+		log.Println("HTTP basic auth requires both -basic-auth-username and -basic-auth-password (or KIOSK_BASICAUTH_USERNAME and KIOSK_BASICAUTH_PASSWORD)")
+		os.Exit(-1)
+	}
+	if hasBasicUser && hasBasicPass {
+		switch cfg.Target.LoginMethod {
+		case "apikey", "idtoken":
+			log.Printf("HTTP basic auth cannot be combined with the %q login method — both use the Authorization header", cfg.Target.LoginMethod)
+			os.Exit(-1)
+		}
 	}
 
 	// validate browser selection; skip when BrowserPath is set since it

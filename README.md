@@ -75,6 +75,10 @@ NOTE: Flags with parameters should use an "equals"
       oauth_auto_login is enabled in grafana config
   -autofit
       Fit panels to screen (default true)
+  -basic-auth-username string
+      HTTP basic auth username (for a reverse proxy in front of Grafana)
+  -basic-auth-password string
+      HTTP basic auth password (for a reverse proxy in front of Grafana)
   -browser string
       Browser to launch [chrome|edge] (default "chrome")
   -browser-path string
@@ -184,6 +188,10 @@ They can also be used instead of a configuration file.
       APIKEY
   KIOSK_AUTOFIT bool
       fit panels to screen (default "true")
+  KIOSK_BASICAUTH_USERNAME string
+      HTTP basic auth username (reverse proxy in front of Grafana)
+  KIOSK_BASICAUTH_PASSWORD string
+      HTTP basic auth password (reverse proxy in front of Grafana)
   KIOSK_DEBUG bool
       enables debug output (default "false")
   KIOSK_GOAUTH_AUTO_LOGIN bool
@@ -414,6 +422,23 @@ This will take the browser to a playlist on play.grafana.org in fullscreen kiosk
 ```bash
 ./bin/grafana-kiosk -URL=https://play.grafana.org/playlists/play/1 -login-method=anon -kiosk-mode=tv
 ```
+
+### Grafana behind a reverse proxy with HTTP Basic Auth
+
+When Grafana is hidden behind a reverse proxy that enforces HTTP Basic Auth,
+supply the proxy credentials with `-basic-auth-username` and
+`-basic-auth-password`. These are sent in the `Authorization` header on every
+request and are independent of the Grafana login method, so they combine with
+`anon`, `local`, `gcom`, `goauth`, `aws`, and `azuread`:
+
+```bash
+./bin/grafana-kiosk \
+  -URL=https://grafana.internal.example.com -login-method=anon \
+  -basic-auth-username=monitor -basic-auth-password=changeme -kiosk-mode=tv
+```
+
+Basic auth cannot be combined with the `apikey` or `idtoken` login methods,
+because those also use the `Authorization` header for their bearer token.
 
 ### Grafana Server with Api Key
 

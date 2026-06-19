@@ -71,6 +71,11 @@ func NewBrowserContext(ctx context.Context, cfg *config.Config, dir string, even
 		cancelAlloc()
 		panic(err)
 	}
+	if err := SetupBasicAuth(taskCtx, cfg); err != nil {
+		cancelTask()
+		cancelAlloc()
+		panic(err)
+	}
 	WaitForBrowserStartup(cfg)
 	return taskCtx, func() {
 		cancelTask()
